@@ -15,7 +15,7 @@ var bcrypt = require('bcryptjs');
 		};
         utils.getDbConnection().then((client)=>{
 
-            var db = client.db('users');
+            var db = client.db(utils.dbname);
 		 	db.collection('users').findOne({
 		 		email:theUser.email
 		 	},(err,user)=>{

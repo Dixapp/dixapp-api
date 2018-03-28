@@ -1,0 +1,13 @@
+{
+    "errorMsg": "error_msg",
+    "error": "error",
+    "message": "message",
+    "roomInfo": "room_info",
+    "roomList": "room_list",
+    "chooser": "chooser",
+    "stage": "stage",
+    "scores": "scores",
+    "cardsInHand": "cards_hand",
+    "question": "question",
+    "answers": "answers_cards"
+}

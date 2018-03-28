@@ -2,8 +2,9 @@
 var jwt = require('jsonwebtoken');
 var MongoClient = require('mongodb').MongoClient;
 
-var url = "mongodb://localhost:27017/dixapp-db";
+var url = "mongodb://localhost:27017";
 var secret='ADB123123';
+var dbname="dixapp-db";
 
 var async = require('async');
 
@@ -32,7 +33,6 @@ getUserFromToken=function(req, token){
     try {
         return jwt.verify(token,getSecret({},{}));
     } catch(err){
-        // console.log(err);
         return false;
     }
 };
@@ -46,7 +46,7 @@ generateToken=function(user){
         sub: user.email,
         id: user._id,
     }, secret, {
-        expiresIn:  3*60*60
+        expiresIn:  48*60*60
     });
 };
 
@@ -55,5 +55,6 @@ module.exports={
 	getSecret:getSecret,
 	getDbConnection:getDbConnection,
 	generateToken:generateToken,
-	getUserFromToken:getUserFromToken
-}
+	getUserFromToken:getUserFromToken,
+    dbname: dbname
+};

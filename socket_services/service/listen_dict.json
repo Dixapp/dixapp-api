@@ -1,0 +1,9 @@
+{
+    "roomCreation": "create_room",
+    "roomJoining": "join_room",
+    "roomLeaving": "leave_room",
+    "disconnect": "disconnect",
+    "startingGame": "start_game",
+    "chooserChoice": "choose",
+    "chosenFromHandCards": "chosen_cards"
+}

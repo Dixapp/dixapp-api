@@ -1,5 +1,8 @@
-var chat = require('./chat');
+var ChatApp = require('./chat_app').ChatApp;
+var RoomApp = require('./room_app').RoomApp;
 var utils = require('../utils');
+var _ = require('lodash');
+var SocketService = require('./service/socket_service').SocketService;
 
 var rooms_container = [];
 
@@ -8,6 +11,19 @@ class App {
         this.nsp = nsp;
         this.socket = socket;
         this.namespace = namespace;
+        this.socketService = new SocketService(this);
+        this.chat = new ChatApp(nsp, socket, namespace);
+    }
+
+    initialize() {
+        this.authorize();
+        this.chat.initialize();
+        this.enableRoomCreation();
+        this.enableRoomJoining();
+        this.enableRoomLeaving();
+        this.disconnectHandlier();
+        this.sendRoomList();
+        this.socketService.emit.roomInfo(null);
     }
 
     authorize() {
@@ -15,164 +31,98 @@ class App {
             var token = this.socket.conn.request._query.auth_token;
             var user = utils.getUserFromToken(null, token);
             if(!user){
-                this.socket.emit('error_msg', {
+                this.socketService.emit.errorMsg({
                     body: "User not found, or token expired"
                 });
                 this.socket.disconnect();
             }
         } catch(err) {
-            this.socket.emit('error', err);
+            this.socketService.emit.error('error', err);
             this.socket.disconnect();
         }
+        this.nickname = user.sub;
+        this._id = user.id;
+
         this.socket.nickname = user.sub;
         this.socket._id = user.id;
     }
 
-    enableChatHandling() {
-        this.socket.join('all_chat_'+this.namespace);
-
-        this.nsp.to('all_chat_'+this.namespace).emit('chat_msg_global', {
-            msg: this.socket.nickname+" joined to "+this.namespace,
-            owner: 'server'
-        });
-
-        var self = this;
-        this.socket.on('chat_msg_global', function (msg) {
-            var owner = self.socket.nickname;
-            self.nsp.to('all_chat_'+self.namespace).emit('chat_msg_global', {
-                msg: msg,
-                owner: owner
-            });
-        });
-    }
-
-    enableLocalChatHandling() {
-        if(this.room) {
-            var self = this;
-            this.socket.on('chat_msg_local', function (msg) {
-                var owner = self.socket.nickname;
-                self.nsp.to(self.room.id).emit('chat_msg_local', {
-                    msg: msg,
-                    owner: owner
-                })
-            });
-        }
-    }
-
-    disableLocalChatHandling() {
-        if(this.room) {
-            this.socket.removeAllListeners('chat_msg_local');
-        }
-    }
-
     enableRoomCreation() {
-        var self = this;
-        this.socket.on('create_room', function (room_data) {
-            self.createRoom(room_data);
-        });
+        this.socketService.listen.roomCreation((data)=> this.createRoom(data));
     }
 
     enableRoomJoining() {
-        var self = this;
-        this.socket.on('join_room' , function (room_id) {
-            self.joinToRoom(room_id);
-        });
+        this.socketService.listen.roomJoining((room_id) => this.joinToRoom(room_id));
     }
 
-    enableRoomRequesting() {
-        var self = this;
-        this.socket.on('get_room_list', function (data) {
-            self.socket.emit('room_list', rooms_container);
-        })
+    enableRoomLeaving() {
+        this.socketService.listen.roomLeaving(() => this.leaveRoom());
     }
 
     disconnectHandlier() {
-        var self = this;
-        this.socket.on('disconnect', function() {
-            console.log(self.socket.nickname + ' disconnected');
-            self.leaveRoom();
-        });
-    }
-
-
-
-    createRoom(room_data) {
-        if(!this.room){
-            this.room = Object.assign({}, room_data);
-            this.room.users = [{
-                socket: this.socket,
-                nickname: this.socket.nickname
-            }];
-            this.room.id = this.socket._id;
-
-
-            rooms_container.push(this.room);
-            this.socket.join(this.room.id);
-            this.enableLocalChatHandling();
-            this.socket.emit('message', {msg: 'Your room has been created'});
-            this.sendRoomList();
-            this.sendUsersInRoom();
-        } else {
-            this.socket.emit('message', {msg: 'You actually own room!'});
-        }
+        this.socketService.listen.disconnect(()=> this.leaveRoom());
     }
 
     sendRoomList() {
-        this.nsp.emit('room_list', rooms_container.map(function (room) {
-            return {
-                title: room.title,
-                users: room.users.map((user)=> user.nickname),
-                id: room.id
-            };
-        }));
+        this.socketService.toNsp().roomList(rooms_container.map((room) => room.getInfo(), this));
+    }
+
+    createRoom(room_data) {
+        if(!this.room){
+            this.room = new RoomApp(this, room_data);
+            rooms_container.push(this.room);
+            this.chat.enableLocalChatHandling(this.room);
+            this.room.sendInfoToAll();
+            this.sendRoomList();
+            this.socketService.emit.message({msg: 'Your room has been created'});
+            return true;
+        } else {
+            this.socketService.emit.message({msg: 'You actually own room!'});
+            return false;
+        }
     }
 
     joinToRoom(room_id) {
         if(this.room && room_id === this.room.id){
-            this.socket.emit('message', {msg: 'You are already in this room'});
+            this.socketService.emit.message({msg: 'You are already in room'});
+            return false;
         } else {
             this.leaveRoom();
             var room = rooms_container.find((room) => room.id === room_id);
             if(room){
-                room.users.push({
-                    socket: this.socket,
-                    nickname: this.socket.nickname
-                });
-                this.socket.join(room_id);
-                this.room = room;
-                this.socket.emit('message', {msg: 'Joined to room ' + room.title});
-                this.enableLocalChatHandling();
-                this.sendUsersInRoom();
+                room.join(this);
+                this.socketService.emit.message({msg: 'Joined to room ' + room.title});
+                this.chat.enableLocalChatHandling(this.room);
+                this.room.sendInfoToAll();
+                this.sendRoomList();
+                return true;
             }
+            return false;
         }
-    }
 
-    sendUsersInRoom() {
-        this.nsp.to(this.room.id).emit('room_users', this.room.users.map((user) => user.nickname));
     }
 
     leaveRoom() {
-        var room = this.room;
-        if(room) {
-            if(room.id === this.socket._id) { //if u are room's owner
+        if(this.room) {
+            var r_id = this.room.id;
+            if(this.room.id === this.socket._id) { //if u are room's owner
                 rooms_container = rooms_container.filter((room) => room.id !== this.room.id, this);
-                this.nsp.to(room.id).emit('destroy_room', {
-                    room_id: room.id
-                });
-                this.disableLocalChatHandling();
-                delete this.room;
+                this.socketService.toRoom().roomInfo(null);
+                this.room.applyOnAll(this.chat.disableLocalChatHandling);
+                this.room.leave(this);
                 this.sendRoomList();
+                return null;
+
             } else {
-                room.users = room.users.filter((user) => user.socket._id !== this.socket._id, this);
-                this.socket.leave(room.id);
-                this.disableLocalChatHandling();
-                delete this.room;
+                var r = this.room;
+                r.leave(this).sendInfoToAll();
+                this.chat.disableLocalChatHandling();
+                this.socketService.emit.roomInfo(null);
+                this.sendRoomList();
+                return r;
+
             }
         }
-    }
-
-    run() {
-        this.enableChatHandling();
     }
 }
 

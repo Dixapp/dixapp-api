@@ -14,7 +14,7 @@ module.exports = function(r){
 		};
 
 		utils.getDbConnection().then((client)=>{
-            var db = client.db('users');
+            var db = client.db(utils.dbname);
 
             db.collection('users').findOne({
 		 		email:newUser.email
