@@ -1,6 +1,5 @@
 var ChatApp = require('./chat_app').ChatApp;
 var RoomApp = require('./room_app').RoomApp;
-var utils = require('../utils');
 var _ = require('lodash');
 var SocketService = require('./service/socket_service').SocketService;
 
@@ -16,35 +15,18 @@ class App {
     }
 
     initialize() {
-        this.authorize();
-        this.chat.initialize();
-        this.enableRoomCreation();
-        this.enableRoomJoining();
-        this.enableRoomLeaving();
-        this.disconnectHandlier();
-        this.sendRoomList();
-        this.socketService.emit.roomInfo(null);
-    }
-
-    authorize() {
-        try {
-            var token = this.socket.conn.request._query.auth_token;
-            var user = utils.getUserFromToken(null, token);
-            if(!user){
-                this.socketService.emit.errorMsg({
-                    body: "User not found, or token expired"
-                });
-                this.socket.disconnect();
-            }
-        } catch(err) {
-            this.socketService.emit.error('error', err);
-            this.socket.disconnect();
+        if(this.socketService.authorize()){
+            this.chat.initialize();
+            this.enableRoomCreation();
+            this.enableRoomJoining();
+            this.enableRoomLeaving();
+            this.disconnectHandlier();
+            this.sendRoomList();
+            this.socketService.emit.roomInfo(null);
+        } else {
+            this.socketService.emit.errorMsg("You have to leave");
+            this.socketService.disconnect();
         }
-        this.nickname = user.sub;
-        this._id = user.id;
-
-        this.socket.nickname = user.sub;
-        this.socket._id = user.id;
     }
 
     enableRoomCreation() {
