@@ -15,19 +15,10 @@ class CAHApp extends App {
         });
     }
 
-    prepareDeck() {
-        if(!answers || !questions){
-            loadCards().then((cards)=>{
-                questions = cards[0];
-                answers = cards[1];
-                this.prepareDeck();
-            });
-        } else {
-            this.room.answers = answers.slice();
-            this.room.questions = questions.slice();
-            this.shuffleCards(this.room.answers);
-            this.shuffleCards(this.room.questions);
-        }
+    async prepareDeck() {
+        var cards = await loadCards();
+        this.room.answers = cards[1];
+        this.room.questions = cards[0];
     }
 
     shuffleCards(cards) {
@@ -225,7 +216,6 @@ class CAHApp extends App {
 
     hearAnswers() {
         var self = this;
-
         this.socketService.listen.chosenFromHandCards((answers)=>{
             var user = self.room.users.find((user)=> user.socket._id == self.socket._id);
             user.answers = answers;
