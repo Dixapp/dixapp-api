@@ -48,6 +48,14 @@ class SocketService {
         return this.nspEmitter;
     }
 
+    join(room_id){
+        this.app.socket.join(room_id);
+    }
+
+    leave(room_id){
+        this.app.socket.leave(room_id);
+    }
+
     toRoom() {
         this.roomEmitter.emiter = this.app.nsp.to(this.app.room.id);
         return this.roomEmitter;

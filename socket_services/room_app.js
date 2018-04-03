@@ -14,15 +14,15 @@ class RoomApp {
         this.owner.room = this;
 
         this.users = [owner];
-        this.id = owner.socket._id;
+        this.id = owner._id;
 
-        this.owner.socket.join(this.id);
+        this.owner.socketService.join(this.id);
     }
 
     join(user) {
         this.users.push(user);
         user.room = this;
-        user.socket.join(this.id);
+        user.socketService.join(this.id);
     }
 
     getInfo() {
@@ -37,12 +37,12 @@ class RoomApp {
     leave(user) {
         if(user === this.owner){
             for(var i=0; i < this.users.length; i++){
-                this.users[i].socket.leave(this.id);
+                this.users[i].socketService.leave(this.id);
                 delete this.users[i].room;
             }
         } else {
             this.users = this.users.filter((u) => u.socket._id !== user.socket._id);
-            user.socket.leave(this.id);
+            user.socketService.leave(this.id);
             delete user.room;
         }
         return this;
@@ -75,8 +75,6 @@ class RoomContainer {
     getRoomsInfo() {
         return this.rooms.map((room)=> room.getInfo());
     }
-
-
 
 }
 
