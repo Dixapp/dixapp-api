@@ -1,4 +1,4 @@
-var utils=require('../../utils');
+var utils=require('../../../utils');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 

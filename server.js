@@ -2,7 +2,7 @@
 
 var app = require('./index');
 var http = require('http');
-var CAHApp = require('./socket_services/dixio').CAHApp;
+var CAHApp = require('./socket_services/cah_app').CAHApp;
 
 var server;
 

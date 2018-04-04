@@ -1,7 +1,7 @@
 /**
  * Created by MD on 17/10/17.
  */
-var userService = require('../../services/user_service');
+var userService = require('../../../services/user_service');
 
 module.exports = function(r){
 r.post('/',function (req,res) {

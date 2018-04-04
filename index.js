@@ -40,8 +40,8 @@ var corsOptions = {
 
 app = module.exports = express();
 app.use(kraken(options));
-app.use('/users',cors(corsOptions));
-app.use('/images',cors(corsOptions));
+app.use('/api/users',cors(corsOptions));
+app.use('/api/images',cors(corsOptions));
 
 
 app.use('/*',expressJwt({
