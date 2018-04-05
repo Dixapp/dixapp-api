@@ -2,7 +2,7 @@
 var jwt = require('jsonwebtoken');
 var MongoClient = require('mongodb').MongoClient;
 
-var url = "mongodb://localhost:27017";
+var url = process.env.DB_URL || "mongodb://localhost:27017";
 var secret='ADB123123';
 var dbname="dixapp-db";
 
