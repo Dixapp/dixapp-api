@@ -43,11 +43,10 @@ app.use(kraken(options));
 app.use('/api/users',cors(corsOptions));
 app.use('/api/images',cors(corsOptions));
 
-
 app.use('/*',expressJwt({
     secret: utils.getSecret,
     getToken: utils.getToken,
-}).unless({ path: ['/users/authenticate','/users/register'] }));
+}).unless({ path: ['/api/users/authenticate','/api/users/register'] }));
 
 
 app.on('start', function () {
