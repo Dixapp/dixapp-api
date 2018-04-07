@@ -29,15 +29,19 @@ class SocketService {
             this.emit.error('error', err);
             return false;
         }
-        if(!Object.values(this.app.nsp.sockets).find((socket)=> socket.nickname === user.sub && socket.id !== this.app.socket.id, this)){
-            this.app.nickname = user.sub;
-            this.app._id = user.id;
-            this.app.socket.nickname = user.sub;
-            this.app.socket._id = user.id;
-            return true;
-        } else {
-            return false;
-        }
+        var userApperance = Object.values(this.app.nsp.sockets).filter((socket)=> socket.nickname === user.sub && socket.id !== this.app.socket.id, this);
+
+        this.app.nickname = user.sub;
+        this.app._id = user.id;
+        this.app.socket.nickname = user.sub;
+        this.app.socket._id = user.id;
+
+        userApperance.map((socket)=>{
+            socket.disconnect(true);
+        });
+
+        return true;
+
     }
 
     disconnect() {
