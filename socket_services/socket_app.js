@@ -24,7 +24,7 @@ class App {
             this.sendRoomList();
             this.socketService.emit.roomInfo(null);
         } else {
-            this.socketService.emit.errorMsg("You have to leave");
+            this.socketService.emit.errorMsg("Error with authorization, try refresh site");
             this.socketService.disconnect();
         }
     }
