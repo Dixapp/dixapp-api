@@ -7,7 +7,7 @@ module.exports.loadCards = function() {
             var db = client.db(dbname);
 
             var questions = db.collection('cards').aggregate([
-                { $match : { cardType : 'Q', numAnswers: 1 } },
+                { $match : { cardType : 'Q' } },
                 { $sample: { size: 100 } }
             ]).toArray();
 
