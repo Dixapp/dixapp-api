@@ -1,4 +1,3 @@
-dixapp-api
-===========
+# Dixapp API
 
-Serves dix-like service on web
+Dixapp service for storing users and managing sessions of game(s) using socket.io

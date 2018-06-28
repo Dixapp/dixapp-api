@@ -1,28 +1,33 @@
 {
-  "_from": "q@0.8.x",
+  "_args": [
+    [
+      "q@0.8.12",
+      "/home/ktoztam/dixapp/dixapp-api"
+    ]
+  ],
+  "_from": "q@0.8.12",
   "_id": "q@0.8.12",
   "_inBundle": false,
   "_integrity": "sha1-kWKpHhGBnEvNp9oVz1/vqtB3iCM=",
   "_location": "/q",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
+    "type": "version",
     "registry": true,
-    "raw": "q@0.8.x",
+    "raw": "q@0.8.12",
     "name": "q",
     "escapedName": "q",
-    "rawSpec": "0.8.x",
+    "rawSpec": "0.8.12",
     "saveSpec": null,
-    "fetchSpec": "0.8.x"
+    "fetchSpec": "0.8.12"
   },
   "_requiredBy": [
     "/coa",
     "/ometajs"
   ],
   "_resolved": "https://registry.npmjs.org/q/-/q-0.8.12.tgz",
-  "_shasum": "9162a91e11819c4bcda7da15cf5fefaad0778823",
-  "_spec": "q@0.8.x",
-  "_where": "/home/dariusz/dixapp/dixapp-api/node_modules/ometajs",
+  "_spec": "0.8.12",
+  "_where": "/home/ktoztam/dixapp/dixapp-api",
   "author": {
     "name": "Kris Kowal",
     "email": "kris@cixar.com",
@@ -31,7 +36,6 @@
   "bugs": {
     "url": "http://github.com/kriskowal/q/issues"
   },
-  "bundleDependencies": false,
   "contributors": [
     {
       "name": "Kris Kowal",
@@ -50,7 +54,6 @@
     }
   ],
   "dependencies": {},
-  "deprecated": false,
   "description": "A library for promises (CommonJS/Promises/A,B,D)",
   "devDependencies": {
     "cover": "*",

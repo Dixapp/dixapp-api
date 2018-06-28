@@ -18,16 +18,16 @@
         "cors": "^2.8.4",
         "dust-makara-helpers": "^4.2.0",
         "eslint": "^1.10.3",
-        "express": "^4.12.2",
-        "express-jwt": "^5.3.0",
-        "jsonwebtoken": "^8.1.0",
+        "express": "^4.16.3",
+        "express-jwt": "^5.3.1",
+        "jsonwebtoken": "^8.3.0",
         "kraken-js": "^2.0.0",
         "loadash": "^1.0.0",
-        "lodash": "^4.17.5",
+        "lodash": "^4.17.10",
         "makara": "^2.0.3",
-        "mongodb": "^3.0.0-rc0",
+        "mongodb": "^3.1.0",
         "requirejs": "^2.3.5",
-        "socket.io": "^2.0.4"
+        "socket.io": "^2.1.1"
     },
     "devDependencies": {
         "grunt": "^0.4.5",
